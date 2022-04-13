@@ -1,4 +1,4 @@
-# exaple-email-client
+# example-email-client
 
 PHP webmail client that uses [EmailEngine](https://emailengine.app) to list and view emails.
 
