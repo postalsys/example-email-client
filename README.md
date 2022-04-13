@@ -9,17 +9,21 @@ PHP webmail client that uses [EmailEngine](https://emailengine.app) to list and 
 - View emails
 - Download attachments
 
-**Account listing**
+---
+
+**Screenshot 1: Account listing**
 
 ![](https://cldup.com/8XmKK1OWMd.png)
 
-**Message listing**
+**Screenshot 2: Message listing**
 
 ![](https://cldup.com/KS5K_u19Gc.png)
 
-**Message view**
+**Screenshot 3: Message view**
 
 ![](https://cldup.com/-lM3nzgRml.png)
+
+---
 
 ### 1\. Setup
 
