@@ -25,6 +25,8 @@ PHP webmail client that uses [EmailEngine](https://emailengine.app) to list and 
 
 ---
 
+## Usage
+
 ### 1\. Setup
 
 Requires the following environment variables:
