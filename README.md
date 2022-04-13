@@ -2,6 +2,25 @@
 
 PHP webmail client that uses [EmailEngine](https://emailengine.app) to list and view emails.
 
+### Features
+
+- List registered email accounts
+- Browse folders and emails
+- View emails
+- Download attachments
+
+**Account listing**
+
+![](https://cldup.com/8XmKK1OWMd.png)
+
+**Message listing**
+
+![](https://cldup.com/KS5K_u19Gc.png)
+
+**Message view**
+
+![](https://cldup.com/-lM3nzgRml.png)
+
 ### 1\. Setup
 
 Requires the following environment variables:
