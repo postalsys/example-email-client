@@ -43,7 +43,7 @@ $ composer install
 
 ### 3\. Run
 
-Make sure that the _htdocs_ folder is the document root for a PHP virtual host and then navigate to that web page.
+Open _index.php_ on your browser.
 
 ### License
 
