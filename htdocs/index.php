@@ -1,5 +1,8 @@
 <?php
 
+#phpinfo();
+#exit;
+
 error_reporting(E_ALL ^ (E_DEPRECATED));
 
 require __DIR__ . '/vendor/autoload.php';
@@ -9,6 +12,8 @@ $ee = new EmailEngine(array(
     "access_token" => $_SERVER['EE_API_TOKEN'],
     "ee_base_url" => $_SERVER['EE_BASE_URL'],
 ));
+
+$base_url = $_SERVER['PHP_SELF'];
 
 $renderer = new \Handlebars\Handlebars(array(
     'loader' => new \Handlebars\Loader\StringLoader(),
@@ -26,7 +31,7 @@ $layout = '<!doctype html>
 
     <body class="py-4">
         <div class="container">
-            <h1 class="mb-3">Demo</h1>
+            <h1 class="mb-3">Demo webmail</h1>
             <hr class="mb-3">
             {{{body}}}
         </div>
@@ -47,7 +52,7 @@ $templates = array(
 
 <div class="list-group">
 {{#each accounts}}
-    <a href="/?action=account&amp;account={{account}}" class="list-group-item list-group-item-action">{{name}} &lt;{{email}}&gt;</a>
+    <a href="{{base_url}}?action=account&amp;account={{account}}" class="list-group-item list-group-item-action">{{name}} &lt;{{email}}&gt;</a>
 {{/each}}
 </div>
 
@@ -67,7 +72,7 @@ $templates = array(
 
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/">Accounts</a></li>
+    <li class="breadcrumb-item"><a href="{{base_url}}">Accounts</a></li>
     <li class="breadcrumb-item active" aria-current="page">{{account.name}}</li>
   </ol>
 </nav>
@@ -77,7 +82,7 @@ $templates = array(
 
         <div class="list-group">
         {{#each mailboxes}}
-            <a href="/?action=account&amp;account={{../account.account}}&amp;mailbox={{path}}"
+            <a href="{{base_url}}?action=account&amp;account={{../account.account}}&amp;mailbox={{path}}"
                 class="list-group-item list-group-item-action {{#if selected}}active{{/if}}">{{name}}</a>
         {{/each}}
         </div>
@@ -108,7 +113,7 @@ $templates = array(
                         <div class="float-right">📎</div>
                     {{/if}}
 
-                    <a href="/?action=message&amp;account={{../account.account}}&amp;message={{id}}">{{subject}}</a>
+                    <a href="{{base_url}}?action=message&amp;account={{../account.account}}&amp;message={{id}}">{{subject}}</a>
                 </td>
             </tr>
         {{/each}}
@@ -134,8 +139,8 @@ $templates = array(
 
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/">Accounts</a></li>
-    <li class="breadcrumb-item"><a href="/?action=account&account={{account.account}}">{{account.name}}</a></li>
+    <li class="breadcrumb-item"><a href="{{base_url}}">Accounts</a></li>
+    <li class="breadcrumb-item"><a href="{{base_url}}?action=account&account={{account.account}}">{{account.name}}</a></li>
     <li class="breadcrumb-item active" aria-current="page">View message</li>
   </ol>
 </nav>
@@ -194,7 +199,7 @@ $templates = array(
 <div class="mt-3 alert alert-secondary">
 
     {{#each message.attachments}}
-        <a href="/?action=attachment&amp;account={{../account.account}}&amp;attachment={{id}}" class="btn btn-sm btn-primary">
+        <a href="{{base_url}}?action=attachment&amp;account={{../account.account}}&amp;attachment={{id}}" class="btn btn-sm btn-primary">
             {{#if filename}}
                 {{filename}}
             {{else}}
@@ -213,7 +218,7 @@ $templates = array(
 
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/">Accounts</a></li>
+    <li class="breadcrumb-item"><a href="{{base_url}}">Accounts</a></li>
   </ol>
 </nav>
 
@@ -224,11 +229,12 @@ $templates = array(
 
 function render_page($status_code, $body_template, $data)
 {
-    global $renderer, $layout, $templates;
+    global $renderer, $layout, $templates, $base_url;
 
     http_response_code($status_code);
     header('Content-type: text/html; Charset=utf-8');
 
+    $data['base_url'] = $base_url;
     $data['body'] = $renderer->render($templates[$body_template], $data);
     $data['body_template'] = $body_template;
 
@@ -237,7 +243,7 @@ function render_page($status_code, $body_template, $data)
 
 function show_list($page_nr)
 {
-    global $ee;
+    global $ee, $base_url;
 
     try {
         $accounts_response = $ee->request('get', '/v1/accounts?page=' . $page_nr);
@@ -251,7 +257,7 @@ function show_list($page_nr)
     if ($accounts_response['pages'] > 1) {
         for ($i = 0; $i < $accounts_response['pages']; $i++) {
             $accounts_response['paging'][] = array(
-                'url' => '/?action=list&amp;page=' . $i,
+                'url' => $base_url . '?action=list&amp;page=' . $i,
                 'text' => $i + 1,
                 'selected' => $i === $page_nr,
             );
@@ -263,7 +269,7 @@ function show_list($page_nr)
 
 function show_account($account_id, $requested_path, $page_nr)
 {
-    global $ee;
+    global $ee, $base_url;
 
     try {
         $account = $ee->request('get', '/v1/account/' . urlencode($account_id));
@@ -296,7 +302,7 @@ function show_account($account_id, $requested_path, $page_nr)
         if ($messages['pages'] > 1) {
             for ($i = 0; $i < $messages['pages']; $i++) {
                 $messages['paging'][] = array(
-                    'url' => '/?action=account&amp;account=' . urlencode($account_id) . '&amp;mailbox=' . urlencode($requested_path) . '&amp;page=' . $i,
+                    'url' => $base_url . '?action=account&amp;account=' . urlencode($account_id) . '&amp;mailbox=' . urlencode($requested_path) . '&amp;page=' . $i,
                     'text' => $i + 1,
                     'selected' => $i === $page_nr,
                 );
@@ -310,7 +316,7 @@ function show_account($account_id, $requested_path, $page_nr)
 function show_message($account_id, $message_id)
 {
 
-    global $ee;
+    global $ee, $base_url;
 
     try {
         $account = $ee->request('get', '/v1/account/' . urlencode($account_id));
@@ -326,7 +332,7 @@ function show_message($account_id, $message_id)
         foreach ($message['attachments'] as $attachment) {
             if (isset($attachment['contentId'])) {
                 $cid = trim($attachment['contentId'], '<> \n\r\t\v\x00');
-                $link = "/?action=attachment&amp;account=" . urlencode($account_id) . "&amp;attachment=" . urlencode($attachment['id']) . "";
+                $link = $base_url . '?action=attachment&amp;account=' . urlencode($account_id) . '&amp;attachment=' . urlencode($attachment['id']);
                 $message['text']['html'] = str_replace('src="cid:' . $cid . '"', "src=\"$link\"", $message['text']['html']);
             }
         }
